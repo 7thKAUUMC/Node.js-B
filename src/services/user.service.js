@@ -7,26 +7,27 @@ import {
 } from "../repositories/user.repository.js";
 
 export const userSignUp = async (data) => {
-  const joinUserId = await addUser({
+  const { user_id } = await addUser({
     email: data.email,
     name: data.name,
     gender: data.gender,
-    birth: data.birth,
+    birthdate: data.birthdate,
     address: data.address,
-    detailAddress: data.detailAddress,
-    phoneNumber: data.phoneNumber,
+    spec_address: data.spec_address,
+    phonenumber: data.phonenumber,
   });
 
-  if (joinUserId === null) {
-    throw new Error("이미 존재하는 이메일입니다.");
+  if (!user_id) {
+    throw new Error("사용자 추가에 실패했습니다."); // 사용자 추가 실패 처리
   }
 
+  // 선호 카테고리 추가
   for (const preference of data.preferences) {
-    await setPreference(joinUserId, preference);
+    await setPreference(user_id, preference);
   }
 
-  const user = await getUser(joinUserId);
-  const preferences = await getUserPreferencesByUserId(joinUserId);
+  const user = await getUser(user_id);
+  const preferences = await getUserPreferencesByUserId(user_id);
 
   return responseFromUser({ user, preferences });
 };

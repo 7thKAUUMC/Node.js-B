@@ -4,6 +4,7 @@
   "description": "Node.js-B 스터디",
   "main": "index.js",
   "dependencies": {
+    "@prisma/client": "^5.21.1",
     "accepts": "^1.3.8",
     "array-flatten": "^3.0.0",
     "body-parser": "^2.0.0-beta.2",
@@ -55,6 +56,7 @@
     "parseurl": "^1.3.3",
     "path-is-absolute": "^1.0.1",
     "path-to-regexp": "^3.2.0",
+    "prisma": "^5.21.1",
     "proxy-addr": "^2.0.7",
     "qs": "^6.11.0",
     "range-parser": "^1.2.1",

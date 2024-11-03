@@ -1,10 +1,5 @@
-import { bodyToUser, responseFromUser } from "../dtos/user.dto.js"; 
-import {
-  addUser,
-  getUser,
-  getUserPreferencesByUserId,
-  setPreference,
-} from "../repositories/user.repository.js";
+import { addUser, getUser, getUserPreferencesByUserId, setPreference } from "../repositories/user.repository.js";
+import { responseFromUser } from "../dtos/user.dto.js";
 
 export const userSignUp = async (data) => {
   const { user_id } = await addUser({
@@ -29,5 +24,5 @@ export const userSignUp = async (data) => {
   const user = await getUser(user_id);
   const preferences = await getUserPreferencesByUserId(user_id);
 
-  return responseFromUser({ user, preferences });
+  return { ...user, preferences }; // 반환 형식 수정
 };

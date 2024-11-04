@@ -26,3 +26,13 @@ export const responseFromReview = (review, storeName) => {
     created_at: review.created_at,
   };
 };
+
+// 사용자 리뷰 응답 포맷팅 함수
+export const responseFromReviews = (reviews) => {
+  return {
+    data: reviews,
+    pagination: {
+      cursor: reviews.length ? reviews[reviews.length - 1].id : null,
+    },
+  };
+};

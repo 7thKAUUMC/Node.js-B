@@ -1,0 +1,145 @@
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model User {
+  id                   Int                 @id @default(autoincrement())
+  name                 String?             @db.VarChar(20)
+  gender               String?             @db.VarChar(10)
+  age                  Int?
+  address              String?             @db.VarChar(40)
+  spec_address         String?             @db.VarChar(40)
+  social_type          String?             @db.VarChar(10)
+  created_at           DateTime?           @default(now())
+  updated_at           DateTime?           @updatedAt
+  email                String?             @db.VarChar(50)
+  point                Int?
+  birthdate            DateTime?
+  phonenumber          String?             @db.VarChar(15)
+  userFavorCategories   UserFavorCategory[]
+  memberAgrees         MemberAgree[]
+  memberMissions       MemberMission[]
+  reviews              Review[]
+  reviewImages         ReviewImage[]
+}
+
+model UserFavorCategory {
+  id                   Int           @id @default(autoincrement())
+  user_id              Int
+  category_id          Int
+  created_at           DateTime?     @default(now())
+  updated_at           DateTime?     @updatedAt
+  user                 User          @relation(fields: [user_id], references: [id], map: "UserFavorCategory_user_id_fkey")
+  foodCategory         FoodCategory  @relation(fields: [category_id], references: [id], map: "UserFavorCategory_category_id_fkey")
+
+  @@index([user_id], map: "UserFavorCategory_user_id_idx")
+  @@index([category_id], map: "UserFavorCategory_category_id_idx")
+}
+
+model MemberAgree {
+  id                   Int       @id @default(autoincrement())
+  user_id              Int
+  terms_id             Int
+  created_at           DateTime? @default(now())
+  updated_at           DateTime? @updatedAt
+  user                 User      @relation(fields: [user_id], references: [id], map: "MemberAgree_user_id_fkey")
+  terms                Terms     @relation(fields: [terms_id], references: [id], map: "MemberAgree_terms_id_fkey")
+
+  @@index([user_id], map: "MemberAgree_user_id_idx")
+  @@index([terms_id], map: "MemberAgree_terms_id_idx")
+}
+
+model MemberMission {
+  id                   Int          @id @default(autoincrement())
+  mission_id           Int
+  user_id              Int
+  store_id             Int
+  region_id            Int
+  status               String?      @db.VarChar(15)
+  created_at           DateTime?    @default(now())
+  updated_at           DateTime?    @updatedAt
+  user                 User         @relation(fields: [user_id], references: [id], map: "MemberMission_user_id_fkey")
+  mission              Mission      @relation(fields: [mission_id], references: [id], map: "MemberMission_mission_id_fkey")
+}
+
+model Mission {
+  id                   Int          @id @default(autoincrement())
+  store_id             Int
+  region_id            Int
+  reward               Int?
+  deadline             DateTime?
+  mission_spec         String?
+  created_at           DateTime?    @default(now())
+  updated_at           DateTime?    @updatedAt
+  store                Store        @relation(fields: [store_id], references: [id], map: "Mission_store_id_fkey")
+  memberMissions       MemberMission[]
+}
+
+model Review {
+  id                   Int       @id @default(autoincrement())
+  user_id              Int
+  store_id             Int
+  region_id            Int
+  body                 String?
+  score                Float?
+  created_at           DateTime? @default(now())
+  updated_at           DateTime? @updatedAt
+
+  user                 User      @relation(fields: [user_id], references: [id])
+  store                Store     @relation(fields: [store_id], references: [id])
+  reviewImages         ReviewImage[]
+}
+
+model ReviewImage {
+  id                   Int       @id @default(autoincrement())
+  review_id            Int
+  user_id              Int
+  store_id             Int
+  region_id            Int
+  image_url            String?
+  created_at           DateTime? @default(now())
+  updated_at           DateTime? @updatedAt
+  review               Review    @relation(fields: [review_id], references: [id], map: "ReviewImage_review_id_fkey")
+  user                 User      @relation(fields: [user_id], references: [id], map: "ReviewImage_user_id_fkey")
+  store                Store     @relation(fields: [store_id], references: [id], map: "ReviewImage_store_id_fkey")
+}
+
+model Store {
+  id                   Int       @id @default(autoincrement())
+  region_id            Int
+  name                 String?   @db.VarChar(50)
+  address              String?   @db.VarChar(50)
+  score                Float?
+  created_at           DateTime? @default(now())
+  updated_at           DateTime? @updatedAt
+  region               Region    @relation(fields: [region_id], references: [id], map: "Store_region_id_fkey")
+  missions             Mission[]
+  reviews              Review[]
+  reviewImages         ReviewImage[]
+
+  @@index([region_id], map: "Store_region_id_idx")
+}
+
+model FoodCategory {
+  id                   Int                   @id @default(autoincrement())
+  name                 String?
+  description          String?
+  userFavorCategories   UserFavorCategory[]
+}
+
+model Terms {
+  id                   Int           @id @default(autoincrement())
+  content              String?
+  memberAgrees         MemberAgree[]
+}
+
+model Region {
+  id                   Int        @id @default(autoincrement())
+  name                 String?
+  stores               Store[]
+}

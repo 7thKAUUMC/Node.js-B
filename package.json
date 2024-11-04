@@ -83,5 +83,6 @@
   "keywords": [],
   "author": "",
   "license": "ISC",
+  "dev": "nodemon -e js,json,prisma --exec \"prisma generate && node src/index.js\"",
   "type": "module"
 }

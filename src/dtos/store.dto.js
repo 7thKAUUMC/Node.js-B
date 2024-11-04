@@ -20,3 +20,16 @@ export const responseFromStore = (store, regionName) => {
     created_at: store.created_at, 
   };
 };
+
+export const responseFromMissions = (missions) => {
+  return missions.map((mission) => ({
+    id: mission.id,
+    store_id: mission.store_id,
+    region_id: mission.region_id,
+    reward: mission.reward,
+    deadline: mission.deadline,
+    mission_spec: mission.mission_spec,
+    created_at: mission.created_at,
+  }));
+};
+

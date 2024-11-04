@@ -1,43 +1,59 @@
-import { pool } from "../db.config.js"; // DB 연결 설정
+import { prisma } from "../db.config.js";
 
 // 리뷰 추가 함수
 export const addReview = async (data) => {
-  const conn = await pool.getConnection();
-
   try {
-    const [result] = await conn.query(
-      `INSERT INTO review (user_id, store_id, region_id, body, score) VALUES (?, ?, ?, ?, ?);`,
-      [data.user_id, data.store_id, data.region_id, data.body, data.score] // region_id 사용
-    );
+    const review = await prisma.review.create({
+      data: {
+        user_id: data.user_id,
+        store_id: data.store_id,
+        body: data.body,
+        score: data.score,
+        region_id: data.region_id, // region_id 추가
+      },
+    });
 
-    return {
-      id: result.insertId,
-      user_id: data.user_id,
-      store_id: data.store_id,
-      region_id: data.region_id,
-      body: data.body,
-      score: data.score,
-      created_at: new Date().toISOString(), 
-    };
+    return review; // 생성된 리뷰 반환
   } catch (err) {
     console.error("리뷰 추가 중 오류 발생:", err);
     throw new Error("리뷰 추가에 실패했습니다."); // 예외 발생
-  } finally {
-    conn.release();
   }
 };
 
 // 가게 조회 함수
 export const getStoreById = async (storeId) => {
-  const conn = await pool.getConnection();
+  return await prisma.store.findUnique({
+    where: { id: storeId },
+    select: { id: true, name: true, region_id: true }, // 필요한 필드만 선택
+  });
+};
 
-  try {
-    const [rows] = await conn.query(`SELECT * FROM store WHERE id = ?;`, [storeId]);
-    return rows.length > 0 ? rows[0] : null; // 가게가 존재하면 반환
-  } catch (err) {
-    console.error("가게 조회 중 오류 발생:", err);
-    return null; // 오류 발생 시 null 반환
-  } finally {
-    conn.release();
-  }
+// 사용자 리뷰 조회 함수
+export const getAllUserReviews = async (userId, cursor) => {
+  const reviews = await prisma.review.findMany({
+    select: {
+      id: true,
+      body: true,
+      score: true,
+      created_at: true,
+      store: {
+        select: {
+          id: true,
+          name: true,
+        },
+      },
+    },
+    where: {
+      user_id: userId,
+      id: {
+        gt: cursor, // cursor 값보다 큰 id만 조회
+      },
+    },
+    orderBy: {
+      id: "asc", // id 기준으로 오름차순 정렬
+    },
+    take: 5, // 최대 5개 리뷰 조회
+  });
+
+  return reviews;
 };

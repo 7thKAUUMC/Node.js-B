@@ -1,0 +1,10 @@
+{
+  "email": "test15@example.com",
+  "name": "엘빈",
+  "gender": "남성",
+  "birth": "2000-02-03",
+  "address": "주소1",
+  "detailAddress": "세부주소1",
+  "phoneNumber": "010-1234-1234",
+  "preferences": [1, 2, 5]
+}

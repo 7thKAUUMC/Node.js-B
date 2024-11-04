@@ -25,3 +25,11 @@ export const responseFromUser = async (data) => {
     })),
   };
 };
+
+export const startMissionDto = (userId, missionId) => {
+  return {
+    member_id : userId,
+    mission_id : missionId,
+    status: "Not Completed"
+  }
+}

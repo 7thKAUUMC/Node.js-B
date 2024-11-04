@@ -10,7 +10,7 @@ export const registerShopDto = (body) => {
   return {
     name : body.name,
     address: body.address,
-    regionId: body.regionId,
+    region: body.regionId,
   }
 }
 
@@ -34,10 +34,3 @@ export const missionDto = (body, shopId) => {
   }
 }
 
-export const startMissionDto = (userId, missionId) => {
-  return {
-    member_id : userId,
-    mission_id : missionId,
-    status: "Not Completed"
-  }
-}

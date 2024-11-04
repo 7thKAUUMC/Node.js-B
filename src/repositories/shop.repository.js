@@ -1,20 +1,18 @@
-import { pool } from "../db.config.js";
+import { PrismaClient } from '@prisma/client';
+const prisma = new PrismaClient();
 
 export const addShop = async (data) => {
-  const conn = await pool.getConnection();
-  
   try {
-    const [result] = await pool.query(
-      `INSERT INTO store(name, address, region_id) VALUES(?, ?, ?)`,
-      [
-        data.name,
-        data.address,
-        data.regionId,
-      ]
-    );
+    const result = await prisma.store.create({
+      data: {
+        name: data.name,
+        address: data.address,
+        regionId: data.regionId,
+      },
+    });
     
     return {
-      storeId: result.insertId,
+      storeId: Number(result.id), 
       message: "성공적으로 등록되었습니다.",
       status: 201
     };
@@ -26,110 +24,127 @@ export const addShop = async (data) => {
       status: 500,
       message: error.message || "Internal Server Error"
     };
-  } finally {
-    conn.release();
   }
 };
 
-export const addReview = async(data) =>{
-  const conn = await pool.getConnection();
+export const addReview = async(data) => {
   try {
 
-    const [confirm] = await pool.query(
-      `SELECT EXISTS(SELECT 1 FROM store WHERE id = ?) as isExistsStore`,
-      data.shopId
-    );
-
-    if(!confirm[0].isExistsStore){
-      return null;
-    }
-
-
-    const [result] = await pool.query(
-      `INSERT INTO review (member_id, store_id, body, score) VALUES (?,?,?,?)`,
-      [
-        data.userId,
-        data.shopId,
-        data.content,
-        data.stars,
-      ]
-    )
+    const result = await prisma.review.create({
+      data: {
+        user: {
+          connect: { id: data.userId }  
+        },
+        store: {
+          connect: { id: data.shopId }  
+        },
+        body: data.content,
+        score: data.stars,
+        created_at: new Date(),
+        updated_at: new Date()
+      }
+    });
 
     return {
       message: "성공적으로 리뷰를 등록했습니다.",
       status: 201,
     }
-  }catch(error){
+  } catch(error) {
+    console.error("Review creation error:", error);
     throw {
       status: 500,
-      message: error.sqlMessage || "Internal Server Error"
+      message: error.message || "Internal Server Error"
     }; 
-  }finally{
-    conn.release();
   }
 }
-
 export const addMission = async(data) => {
-  const conn = await pool.getConnection();
-  try {
-    const [result] = await pool.query(
-      `INSERT INTO mission (store_id, reward, deadline, mission_spec) VALUES (?,?,?,?)`,
-      [
-        data.storeId,
-        data.reward,
-        data.deadline,
-        data.mission_spec
-      ]
-    )
+ try {
+   const result = await prisma.mission.create({
+     data: {
+       store_id: data.storeId,
+       reward: data.reward,
+       deadline: data.deadline,
+       mission_spec: data.mission_spec 
+     }
+   });
 
-    return {
-      message : "성공적으로 미션을 등록했습니다.",
-      status: 201
-    }
-  }catch(error){
-    throw {
-      status: 500,
-      message: error.sqlMessage || "Internal Server Error"
-    }; 
-  }finally{
-    conn.release();
-  }
-}
+   return {
+     message: "성공적으로 미션을 등록했습니다.",
+     status: 201
+   }
+ } catch(error) {
+   throw {
+     status: 500,
+     message: error.message || "Internal Server Error"
+   }; 
+ }
+};
 
 export const addToUserMission = async (data) => {
-  const conn = await pool.getConnection();
-  try {
-    const [confirm] = await pool.query(
-      `SELECT EXISTS(SELECT 1 FROM user_mission WHERE member_id = ? AND mission_id = ?) as isEXSITS`,
-      [
-        data.member_id,
-        data.mission_id
-      ]
-    )
+ try {
 
-    if(confirm[0].isEXISTS){
-      return null;
+   const existingMission = await prisma.user_mission.findFirst({
+     where: {
+       AND: [
+         { member_id: data.member_id },
+         { mission_id: data.mission_id }
+       ]
+     }
+   });
+
+   if(existingMission) {
+     return null;
+   }
+
+   const result = await prisma.user_mission.create({
+     data: {
+       member_id: data.member_id,
+       mission_id: data.mission_id,
+       status: data.status
+     }
+   });
+
+   return {
+     message: "성공적으로 미션을 시작했습니다.",
+     status: 201
+   }
+ } catch(error) {
+   throw {
+     status: 500,
+     message: error.message || "Internal Server Error"
+   }; 
+ }
+};
+
+
+export const getShopMissionList = async (data) => {
+  const totalCount = await prisma.mission.count({
+    where: {
+      store_id: data.shopId
     }
+  });
 
-    const [result] = await pool.query(
-      `INSERT INTO user_mission (member_id, mission_id, status) VALUES(?,?,?)`,
-      [
-        data.member_id,
-        data.mission_id,
-        data.status
-      ]
-    );
+  const missions = await prisma.mission.findMany({
+    where: {
+      store_id: data.shopId
+    },
+    select: {
+      id: true,
+      store_id: true,
+      reward: true,
+      deadline: true,
+      mission_spec: true,
+      created_at: true
+    },
+    orderBy: {
+      created_at: 'desc'
+    },
+    skip: (data.page - 1) * data.pageSize,
+    take: data.pageSize
+  });
 
-    return {
-      message : "성공적으로 미션을 시작했습니다.",
-      status: 201
-    }
-  }catch(error){
-    throw {
-      status: 500,
-      message: error.sqlMessage || "Internal Server Error"
-    }; 
-  }finally{
-    conn.release();
-  }
-}
+  return {
+    totalCount,
+    missions
+  };
+};

@@ -1,5 +1,6 @@
-import { missionDto, registerShopDto, reviewDto, startMissionDto } from "../dtos/shop.dto.js";
-import { addShop, addReview, addMission, addToUserMission } from "../repositories/shop.repository.js";
+import { missionDto, registerShopDto, reviewDto} from "../dtos/shop.dto.js";
+import { addShop, addReview, addMission } from "../repositories/shop.repository.js";
+import { getShopMissionList } from "../repositories/shop.repository.js";
 
 export const registerShop = async (data) => {
 
@@ -35,12 +36,30 @@ export const addShopMission = async (data, shopId)=> {
   }
 }
 
-export const beginMission = async (userId, missionId) => {
-  const parsedData = startMissionDto(parseInt(userId,10), parseInt(missionId,10));
-  const result = await addToUserMission(parsedData);
+export const getShopMissions = async (data) => {
+  try {
+    const { totalCount, missions } = await getShopMissionList(data);
 
-  return{
-    message: result.message,
-    status: result.status
+    const formattedMissions = missions.map(mission => ({
+      id: Number(mission.id.toString()),
+      shopId: Number(mission.store_id.toString()),
+      reward: mission.reward,
+      deadline: mission.deadline,
+      missionSpec: mission.mission_spec,
+      createdAt: mission.created_at
+    }));
+
+    return {
+      currentPage: data.page,
+      totalPages: Math.ceil(totalCount / data.pageSize),
+      totalItemCount: totalCount,
+      data: formattedMissions
+    };
+
+  } catch (error) {
+    const errorMessage = error.message || "Internal Server Error";
+    const errorResponse = new Error(errorMessage);
+    errorResponse.status = 500;
+    throw errorResponse;
   }
-}
+};

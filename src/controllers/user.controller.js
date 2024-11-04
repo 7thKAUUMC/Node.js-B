@@ -1,6 +1,7 @@
 import { StatusCodes } from "http-status-codes";
 import { bodyToUser } from "../dtos/user.dto.js";
-import { userSignUp } from "../services/user.service.js";
+import { getUserReviews, userSignUp } from "../services/user.service.js";
+import { beginMission, getOngoingMissions } from "../services/user.service.js";
 
 export const handleUserSignUp = async (req, res, next) => {
   console.log("회원가입을 요청했습니다!");
@@ -8,4 +9,59 @@ export const handleUserSignUp = async (req, res, next) => {
 
   const user = await userSignUp(bodyToUser(req.body));
   res.status(StatusCodes.OK).json({ result: user });
+};
+
+
+export const handleStartMission = async(req, res) => {
+  try{
+    const { userId, missionId } = req.params;
+    const result = await beginMission(userId, missionId);
+
+    return res.status(result.status).json({message: result.message});
+  }catch(error){
+    return res.status(error.status || 500).json({message: error.message});
+  }
+}
+
+
+export const handleGetUserReviews = async (req,res) => {
+  try{
+    const userId = parseInt(req.params.userId);
+    const sortBy = req.query.sortBy || 'latest';
+    const page = parseInt(req.query.page) || 1;
+    const pageSize = parseInt(req.query.pageSize) || 10;
+
+    const data = {
+      userId: userId,
+      sortBy: sortBy,
+      page: page,
+      pageSize: pageSize
+    }
+
+    const result = await getUserReviews(data);
+    console.log(result)
+    return res.status(201).json(result);
+  }catch(error){
+    return res.status(error.status || 500).json({message: error.message});
+  }
+}
+
+export const handleGetOngoingMissions = async (req, res) => {
+  try {
+    const userId = parseInt(req.params.userId, 10);
+    const page = Number(req.query.page) || 1;
+    const pageSize = Number(req.query.pageSize) || 10;
+    
+    const result = await getOngoingMissions({
+      userId,
+      page,
+      pageSize
+    });
+
+    res.status(200).json(result);
+  } catch (error) {
+    res.status(error.status || 500).json({
+      message: error.message || "Internal Server Error"
+    });
+  }
 };

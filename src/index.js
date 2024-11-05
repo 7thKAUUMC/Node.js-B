@@ -1,13 +1,21 @@
-// const express = require('express')  // -> CommonJS
-import express from 'express'          // -> ES Module
+import dotenv from "dotenv";
+import express from "express";
+import cors from 'cors';
 
-const app = express()
-const port = 3000
+dotenv.config();
 
-app.get('/', (req, res) => {
-  res.send('Hello World!')
-})
+const app = express();
+const port = process.env.PORT;
+
+app.use(cors());                            // cors ?? ??
+app.use(express.static('public'));          // ?? ?? ??
+app.use(express.json());                    // request? ??? json?? ??? ? ??? ? (JSON ??? ?? body? ???? ??)
+app.use(express.urlencoded({ extended: false })); // ?? ?? ??? ??? ?? ??? ??
+
+app.get("/", (req, res) => {
+  res.send("Hello World!");
+});
 
 app.listen(port, () => {
-  console.log(`Example app listening on port ${port}`)
-})
+  console.log(`Example app listening on port ${port}`);
+});

@@ -1,5 +1,23 @@
 import { pool } from "../db.config.js"; // ?????? ??? ???
 
+// ??? ????? ???? ??
+export const doesStoreExist = async (storeId) => {
+    const conn = await pool.getConnection();
+  
+    try {
+      const [result] = await pool.query(
+        `SELECT EXISTS(SELECT 1 FROM stores WHERE id = ?) as isExist;`,
+        [storeId]
+      );
+  
+      return result[0].isExist;
+    } catch (err) {
+      throw new Error(`?? ?? ?? ?? ? ?? ??: ${err}`);
+    } finally {
+      conn.release();
+    }
+  };
+
 // ?? ??
 export const addReview = async (data) => {
   const conn = await pool.getConnection();
@@ -8,8 +26,8 @@ export const addReview = async (data) => {
     const [result] = await pool.query(
       `INSERT INTO reviews (user_id, store_id, rating, comment, created_at) VALUES (?, ?, ?, ?, ?);`,
       [
-        data.storeId,
         data.userId,
+        data.storeId,
         data.contents || "",
         data.score,
         data.day,

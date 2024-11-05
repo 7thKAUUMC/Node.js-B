@@ -18,7 +18,7 @@ export const ResponseReview = (review) => {
         userId: review.userId,
         contents: review.contents || "",
         score: review.score,
-        day,
+        day: review.day,
         image: review.image || "",
         createdAt: review.createdAt
     };

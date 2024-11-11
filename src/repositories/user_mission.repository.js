@@ -39,7 +39,7 @@ export const checkUserMissionExists = async (missionId, userId) => {
 // 현재 진행 중인 미션 조회 함수
 export const getUserMissions = async (userId, cursor) => {
   return await prisma.memberMission.findMany({
-    where: { user_id: userId, status: "진행중", id: { gt: cursor } }, // status가 "잔행중"인지 확인
+    where: { user_id: userId, status: "진행중", id: { gt: cursor } }, // status가 "진행중"인지 확인
     orderBy: { id: "asc" },
     take: 5,
   });

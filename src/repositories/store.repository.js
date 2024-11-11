@@ -1,7 +1,16 @@
 import { prisma } from "../db.config.js";
 
-//가게 추가 함수
+// 가게 추가 함수
 export const addStore = async (data) => {
+  // 지역이 존재하는지 확인
+  const regionExists = await prisma.region.findUnique({
+    where: { id: data.region_id },
+  });
+
+  if (!regionExists) {
+    throw new Error("해당 지역이 존재하지 않습니다."); // 지역이 없을 경우 예외 발생
+  }
+
   try {
     const store = await prisma.store.create({
       data: {
@@ -18,7 +27,7 @@ export const addStore = async (data) => {
   }
 };
 
-//주어진 region_id에 해당하는 지역의 이름을 조회하는 함수
+// 주어진 region_id에 해당하는 지역의 이름을 조회하는 함수
 export const getRegionNameById = async (regionId) => {
   const region = await prisma.region.findUnique({
     where: { id: regionId },
@@ -26,8 +35,6 @@ export const getRegionNameById = async (regionId) => {
   });
   return region ? region.name : null; 
 };
-
-
 
 // 가게 ID에 해당하는 미션 조회 함수 (커서 기반)
 export const getMissionsByStoreId = async (storeId, cursor) => {

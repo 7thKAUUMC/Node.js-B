@@ -2,8 +2,12 @@ import { addStore, getRegionNameById, getMissionsByStoreId } from "../repositori
 import { responseFromMissions } from "../dtos/store.dto.js"; // DTO 호출
 
 export const createStore = async (storeData) => {
-  const store = await addStore(storeData);
-  return store; // 생성된 가게 반환
+  try {
+    const store = await addStore(storeData);
+    return store; // 생성된 가게 반환
+  } catch (error) {
+    throw new Error(error.message); // 오류 메시지 전달
+  }
 };
 
 // 지역 이름 조회 함수

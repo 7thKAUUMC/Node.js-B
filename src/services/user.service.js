@@ -10,6 +10,7 @@ import { startMissionDto } from "../dtos/user.dto.js";
 import { addToUserMission } from "../repositories/shop.repository.js";
 import { getReviewDto } from "../dtos/review.dto.js";
 import { getReviewsByUser } from "../repositories/review.repository.js";
+import { DuplicateUserEmailError, InternalServerError } from "../errors.js";
 
 export const userSignUp = async (data) => {
   const joinUserId = await addUser({
@@ -23,8 +24,9 @@ export const userSignUp = async (data) => {
   });
 
   if (joinUserId === null) {
-    throw new Error("이미 존재하는 이메일입니다.");
+    throw new DuplicateUserEmailError("이미 존재하는 이메일입니다.", data);
   }
+
 
   for (const preference of data.preferences) {
     await setPreference(joinUserId, preference);
@@ -37,12 +39,16 @@ export const userSignUp = async (data) => {
 };
 
 export const beginMission = async (userId, missionId) => {
+  try{
   const parsedData = startMissionDto(parseInt(userId,10), parseInt(missionId,10));
   const result = await addToUserMission(parsedData);
 
   return{
     message: result.message,
     status: result.status
+  }
+  }catch{
+    throw new InternalServerError("등록중 오류 발생", missionId);
   }
 }
 
@@ -53,7 +59,7 @@ export const getUserReviews = async (data) => {
  }
 
  export const getOngoingMissions = async (data) => {
-  try {
+
     const { totalCount, missions } = await getMissions(data);
 
     const formattedMissions = missions.map(mission => ({
@@ -64,6 +70,10 @@ export const getUserReviews = async (data) => {
       createdAt: mission.created_at
     }));
 
+    if(formattedMissions.length === 0){
+      throw new InternalServerError("진행중인 미션이 없습니다.", formattedMissions.userId);
+    }
+
     return {
       currentPage: data.page,
       totalPages: Math.ceil(totalCount / data.pageSize),
@@ -71,10 +81,4 @@ export const getUserReviews = async (data) => {
       data: formattedMissions
     };
 
-  } catch (error) {
-    const errorMessage = error.message || "Internal Server Error";
-    const errorResponse = new Error(errorMessage);
-    errorResponse.status = 500;
-    throw errorResponse;
-  }
 };

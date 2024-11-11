@@ -1,12 +1,11 @@
+import { InvalidInputError } from "../errors.js"
+
 export const registerShopDto = (body) => {
-
-  if(!body.name || !body.address || !body.regionId){
-    throw {
-      message : "필수 필드가 누락되었습니다.",
-      status: 400,
-    }
-  }
-
+  console.log()
+  // if(!body.name || !body.address || !body.regionId){
+  //   throw new InvalidInputError("필수 필드가 누락되었습니다.")
+  // }
+  console.log()
   return {
     name : body.name,
     address: body.address,

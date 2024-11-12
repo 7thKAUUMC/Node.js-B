@@ -4,6 +4,15 @@ export const addMission = async (data) => {
     const conn = await pool.getConnection();
 
     try {
+        const [storeCheck] = await conn.query(
+            'SELECT id FROM store WHERE id = ?',
+            [data.storeId]
+        );
+
+        if (storeCheck.length === 0) {
+            throw new Error("?? store_id? ?? ??? ???? ????.");
+        }
+
         const [result] = await conn.query(
             'INSERT INTO mission (store_id, region_id, reward, deadline, mission_spec) VALUES (?, ?, ?, ?, ?);',
             [

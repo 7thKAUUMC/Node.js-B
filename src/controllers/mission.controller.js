@@ -7,7 +7,7 @@ export const handleAddMission = async (req, res) => {
     console.log("body:", req.body);
 
     const mission = await createMission(bodyToMission(req.body));
-    res.status(StatusCodes.OK).json({ result: mission });
+    res.status(StatusCodes.OK).success(mission);
 };
 
 export const handleChallengeMission = async (req, res) => {
@@ -15,5 +15,5 @@ export const handleChallengeMission = async (req, res) => {
     console.log("body:", req.body);
 
     const missionData = await missionChallenge(bodyToChallengeMission(req.body));
-    res.status(StatusCodes.OK).json({ result: missionData });
+    res.status(StatusCodes.OK).success(missionData);
 }

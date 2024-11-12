@@ -1,4 +1,5 @@
 import { responseFromUser } from "../dtos/user.dto.js";
+import { DuplicateUserEmailError } from "../errors.js";
 import {
   addUser,
   getUser,
@@ -18,7 +19,7 @@ export const userSignUp = async (data) => {
   });
 
   if (joinUserId === null) {
-    throw new Error("?? ???? ??????.");
+    throw new DuplicateUserEmailError("?? ???? ??????.", data);
   }
 
   for (const preference of data.preferences) {

@@ -1,5 +1,6 @@
 import { addMission, addChallengeMission } from "../repositories/mission.repository.js";
 import { responseFromMission, responseFromChallengeMission } from "../dtos/mission.dto.js";
+import { DuplicateMissionError } from "../errors.js";
 
 export const createMission = async (data) => {
     const missionId = await addMission({
@@ -10,8 +11,8 @@ export const createMission = async (data) => {
         missionSpec: data.mission_spac
     });
 
-    if (!missionId) {
-        throw new Error("?? ??? ??????.");
+    if (missionId === null) {
+        throw new DuplicateMissionError("?? ??? ??????.", data);
     }
 
     return responseFromMission({ id: missionId, ...data});

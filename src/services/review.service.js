@@ -1,11 +1,12 @@
 import { doesStoreExist, addReview } from "../repositories/review.repository.js";
+import { DuplicateStoreReviewError, DuplicateReviewError } from "../errors.js";
 import { responseFromReview } from "../dtos/review.dto.js";
 
 export const createReview = async (data) => {
     const storeExists = await doesStoreExist(data.storeId); 
   
     if (!storeExists) {
-      throw new Error("??? ???? ????.");
+      throw new DuplicateStoreReviewError("???? ?? ?????.", data);
     }
   
     const reviewId = await addReview({
@@ -17,7 +18,7 @@ export const createReview = async (data) => {
     });
   
     if (!reviewId) {
-      throw new Error("?? ??? ??????.");
+      throw new DuplicateReviewError("?? ??? ??????.", data);
     }
   
     return responseFromReview({ id: reviewId, ...data }); 

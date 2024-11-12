@@ -18,3 +18,23 @@ export const responseFromMission = (mission) => {
         createdAt: mission.createdAt
     };
 };
+
+export const bodyToChallengeMission = (body) => {
+    return {
+        missionId: body.missionId,
+        userId: body.userId,
+        storeId: body.storeId,
+        regionId: body.regionId,
+        status: body.status
+    };
+};
+
+export const responseFromChallengeMission = (body) => {
+    return {
+        missionId: body.missionId,
+        userId: body.userId,
+        storeId: body.storeId,
+        regionId: body.regionId,
+        status: body.status
+    };
+};

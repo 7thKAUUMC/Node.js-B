@@ -1,5 +1,5 @@
 import { missionDto, registerShopDto, reviewDto} from "../dtos/shop.dto.js";
-import { ShopError } from "../errors.js";
+import { InternalServerError, ShopError } from "../errors.js";
 import { addShop, addReview, addMission } from "../repositories/shop.repository.js";
 import { getShopMissionList } from "../repositories/shop.repository.js";
 

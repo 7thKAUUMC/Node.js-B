@@ -10,7 +10,7 @@ import { startMissionDto } from "../dtos/user.dto.js";
 import { addToUserMission } from "../repositories/shop.repository.js";
 import { getReviewDto } from "../dtos/review.dto.js";
 import { getReviewsByUser } from "../repositories/review.repository.js";
-import { DuplicateUserEmailError, InternalServerError } from "../errors.js";
+import { DuplicateUserEmailError, InternalServerError, InvalidUserError, NoReviewError } from "../errors.js";
 
 export const userSignUp = async (data) => {
   const joinUserId = await addUser({
@@ -53,13 +53,20 @@ export const beginMission = async (userId, missionId) => {
 }
 
 export const getUserReviews = async (data) => {
-  const parsedData = getReviewDto(data);
-  const result = await getReviewsByUser(parsedData);
-  return result;
+  try{
+    const parsedData = getReviewDto(data);
+    const result = await getReviewsByUser(parsedData);
+    if(result.data.length === 0){
+      throw new NoReviewError("등록된 리뷰가 없습니다.");
+    }
+    return result;
+  }catch(error){
+    throw new InvalidUserError(error.message);
+  }
  }
 
  export const getOngoingMissions = async (data) => {
-
+    
     const { totalCount, missions } = await getMissions(data);
 
     const formattedMissions = missions.map(mission => ({

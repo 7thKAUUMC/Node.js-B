@@ -4,20 +4,28 @@ import { getUserReviews, userSignUp } from "../services/user.service.js";
 import { beginMission, getOngoingMissions } from "../services/user.service.js";
 
 export const handleUserSignUp = async (req, res, next) => {
-  console.log("회원가입을 요청했습니다!");
-  console.log("body:", req.body); // 값이 잘 들어오나 확인하기 위한 테스트용
+    try{
+    console.log("회원가입을 요청했습니다!");
+    console.log("body:", req.body); // 값이 잘 들어오나 확인하기 위한 테스트용
 
-  const user = await userSignUp(bodyToUser(req.body));
-  res.status(StatusCodes.OK).success(user);
+    const user = await userSignUp(bodyToUser(req.body));
+    res.status(StatusCodes.OK).success(user);
+    }catch(error){
+      res.status(500).error(error);
+    }
 };
 
 
 export const handleStartMission = async(req, res) => {
 
-    const { userId, missionId } = req.params;
-    const result = await beginMission(userId, missionId);
+    try{
+      const { userId, missionId } = req.params;
+      const result = await beginMission(userId, missionId);
 
-    return res.status(result.status).success(result);
+      return res.status(StatusCodes.OK).success(result);
+    }catch(error){
+      res.status(500).error(error);
+    }
 
 }
 
@@ -38,14 +46,15 @@ export const handleGetUserReviews = async (req,res) => {
 
     const result = await getUserReviews(data);
     console.log(result)
-    return res.status(201).json(result);
+    return res.status(StatusCodes.OK).success(result);
   }catch(error){
-    return res.status(error.status || 500).json({message: error.message});
+    res.status(error.status || 500).error(error);
+
   }
 }
 
 export const handleGetOngoingMissions = async (req, res) => {
-
+  try{
     const userId = parseInt(req.params.userId, 10);
     const page = Number(req.query.page) || 1;
     const pageSize = Number(req.query.pageSize) || 10;
@@ -57,5 +66,9 @@ export const handleGetOngoingMissions = async (req, res) => {
     });
 
     res.status(200).success(result);
+  }catch(error){
+    console.log("HERE")
+    res.status(error.status || 500).error(error);
+  }
 
 };

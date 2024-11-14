@@ -4,6 +4,7 @@ import { addShop, addReview, addMission } from "../repositories/shop.repository.
 import { getShopMissionList } from "../repositories/shop.repository.js";
 
 export const registerShop = async (data) => {
+  
   try {
       const parsedData = registerShopDto(data);
 

@@ -5,7 +5,7 @@ export const createReview = async (data) => {
     const storeExists = await doesStoreExist(data.storeId); 
   
     if (!storeExists) {
-      throw new Error("??? ???? ????.");
+      throw new DuplicateStoreReviewError("error: Store doesn't exist!", data);
     }
   
     const reviewId = await addReview({
@@ -17,7 +17,7 @@ export const createReview = async (data) => {
     });
   
     if (!reviewId) {
-      throw new Error("?? ??? ??????.");
+      throw new DuplicateReviewError("error: You can't create review!", data);
     }
   
     return responseFromReview({ id: reviewId, ...data }); 

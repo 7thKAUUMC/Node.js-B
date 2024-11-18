@@ -18,7 +18,7 @@ export const userSignUp = async (data) => {
   });
 
   if (joinUserId === null) {
-    throw new Error("?? ???? ??????.");
+    throw new DuplicateUserEmailError("error: You can't signup!", data);
   }
 
   for (const preference of data.preferences) {

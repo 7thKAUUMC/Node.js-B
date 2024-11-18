@@ -1,6 +1,5 @@
 import { pool } from "../db.config.js";
 
-// User ??? ??
 export const addUser = async (data) => {
   const conn = await pool.getConnection();
 
@@ -30,14 +29,13 @@ export const addUser = async (data) => {
     return result.insertId;
   } catch (err) {
     throw new Error(
-      '??? ?????. ?? ????? ??????. (${err})'
+      `error: Check parameter. (${err})`
     );
   } finally {
     conn.release();
   }
 };
 
-// ??? ?? ??
 export const getUser = async (userId) => {
   const conn = await pool.getConnection();
 
@@ -53,14 +51,13 @@ export const getUser = async (userId) => {
     return user;
   } catch (err) {
     throw new Error(
-      '??? ?????. ?? ????? ??????. (${err})'
+      `error: Check parameter. (${err})`
     );
   } finally {
     conn.release();
   }
 };
 
-// ?? ?? ???? ??
 export const setPreference = async (userId, foodCategoryId) => {
   const conn = await pool.getConnection();
 
@@ -73,14 +70,13 @@ export const setPreference = async (userId, foodCategoryId) => {
     return;
   } catch (err) {
     throw new Error(
-      '??? ?????. ?? ????? ??????.. (${err})'
+      `error: Check parameter. (${err})`
     );
   } finally {
     conn.release();
   }
 };
 
-// ??? ?? ???? ??
 export const getUserPreferencesByUserId = async (userId) => {
   const conn = await pool.getConnection();
 
@@ -96,7 +92,7 @@ export const getUserPreferencesByUserId = async (userId) => {
     return preferences;
   } catch (err) {
     throw new Error(
-      '??? ?????. ?? ????? ??????. (${err})'
+      `error: Check parameter. (${err})`
     );
   } finally {
     conn.release();

@@ -35,7 +35,7 @@ export const addReview = async (data) => {
   
       return result.insertId;
     } catch (err) {
-      throw new Error(`?? ??? ???????. (${err})`);
+      throw new Error(`error: Check parameter. (${err})`);
     } finally {
       conn.release();
     }

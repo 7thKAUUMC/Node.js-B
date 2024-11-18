@@ -4,6 +4,15 @@ export const addMission = async (data) => {
     const conn = await pool.getConnection();
 
     try {
+        const [storeCheck] = await conn.query(
+            'SELECT id FROM store WHERE id = ?',
+            [data.storeId]
+        );
+
+        if (storeCheck.length === 0) {
+            throw new Error("error: Store doesn't exist");
+        }
+
         const [result] = await conn.query(
             'INSERT INTO mission (store_id, region_id, reward, deadline, mission_spec) VALUES (?, ?, ?, ?, ?);',
             [
@@ -17,7 +26,7 @@ export const addMission = async (data) => {
 
         return result.insertId;
     } catch (err) {
-        throw new Error(`?? ??? ???????. (${err})`);
+        throw new Error(`error: Check parameter. (${err})`);
     } finally {
         conn.release();
     }
@@ -38,11 +47,11 @@ export const addChallengeMission = async (data) => {
                 [data.userId, data.missionId]
             )
 
-            if (statusResult[0].status === '???') {
-                throw new Error("?? ???? ?????.");
+            if (statusResult[0].status === 'ing') {
+                throw new Error("error: The mission is already added!");
             }
-            else if (statusResult[0].status === '????') {
-                throw new Error("?? ??? ?????.");
+            else if (statusResult[0].status === 'completed') {
+                throw new Error("error: The mission is already completed!");
             }
             else {
                 const [result] = await conn.query(
@@ -75,8 +84,8 @@ export const addChallengeMission = async (data) => {
         }
 
     } catch (err) {
-        throw new Error(`?? ?? ?? ??? ???????. (${err})`);
+        throw new Error(`error: Check parameter. (${err})`);
     } finally {
-        conn.release();  // ?? ??
+        conn.release();  
     }
 };

@@ -10,8 +10,8 @@ export const createMission = async (data) => {
         missionSpec: data.mission_spac
     });
 
-    if (!missionId) {
-        throw new Error("?? ??? ??????.");
+    if (missionId === null) {
+        throw new DuplicateMissionError("error: You can't create mission!", data);
     }
 
     return responseFromMission({ id: missionId, ...data});

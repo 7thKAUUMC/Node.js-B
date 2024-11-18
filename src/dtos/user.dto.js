@@ -17,21 +17,17 @@ export class UserDTO {
     constructor({ user, preferences }) {
       this.email = user.email;
       this.name = user.name;
-      this.preferCategory = preferences.map(pref => pref.name); // ?? ?? ???? ??
+      this.preferCategory = preferences.map(pref => pref.name); 
     }
   }
 
 // responseFromUser
 export const responseFromUser = (user) => {
     if (!user) {
-        return null; // ??? ??? ?? ?? null ??
+        return null; 
     }
     
-    // DTO? ???? ??? ???? ??
     const userDTO = new UserDTO(user);
     
-    // ??? ??? ??
     return userDTO;
 };
-
-//{"result":{"email":"test@example.com","name":"??","preferCategory":["??","??","??"]}}

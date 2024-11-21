@@ -7,11 +7,23 @@ import { handleStartMission, handleGetOngoingMissions } from "./controllers/user
 import { handleGetMissionList } from "./controllers/shop.controller.js";
 import swaggerAutogen from "swagger-autogen";
 import swaggerUiExpress from "swagger-ui-express";
+import passport from "passport";
+import session from "express-session";
+import { PrismaSessionStore } from "@quixo3/prisma-session-store";
+import { pool } from "./db.config.js";
+import { googleStrategy, kakaoStrategy } from "./auth.config.js";
+import { PrismaClient } from "@prisma/client";
 
+const prisma = new PrismaClient();
 dotenv.config();
 
 const app = express();
 const port = process.env.PORT;
+
+passport.use(googleStrategy);
+passport.use(kakaoStrategy);
+passport.serializeUser((user, done) => done(null, user));
+passport.deserializeUser((user, done) => done(null, user));
 
 app.use(cors()); // cors 방식 허용
 app.use(express.static("public")); // 정적 파일 접근
@@ -34,7 +46,32 @@ app.use((req, res, next) => {
   next();
 });
 
+app.use(
+  session({
+    secret: process.env.EXPRESS_SESSION_SECRET,
+    resave: false,
+    saveUninitialized: false,
+    cookie: {
+      maxAge: 7 * 24 * 60 * 60 * 1000, // 7일
+    },
+    store: new PrismaSessionStore(prisma, {
+      checkPeriod: 2 * 60 * 1000,
+      dbRecordIdIsSessionId: true,
+      serializer: {
+        parse: JSON.parse,
+        stringify: (obj) =>
+          JSON.stringify(obj, (key, value) =>
+            typeof value === "bigint" ? value.toString() : value
+          ),
+      },
+    }),
+  })
+);
 
+app.use(passport.initialize());
+app.use(passport.session());
+
+app.use(passport.session())
 
 app.use((err, req, res, next) => {
   if (res.headersSent) {
@@ -80,6 +117,7 @@ app.get("/openapi.json", async (req, res, next) => {
 });
 
 app.get("/", (req, res) => {
+  console.log(req.user);
   res.send("Hello World!");
 });
 
@@ -96,3 +134,23 @@ app.get("/api/v1/users/:userId/missions", handleGetOngoingMissions);
 app.listen(port, () => {
   console.log(`Example app listening on port ${port}`);
 });
+
+app.get("/oauth2/login/google", passport.authenticate("google"));
+app.get(
+  "/oauth2/callback/google",
+  passport.authenticate("google", {
+    failureRedirect: "/oauth2/login/google",
+    failureMessage: true,
+  }),
+  (req, res) => res.redirect("/")
+);
+
+app.get("/oauth2/login/kakao", passport.authenticate("kakao"));
+app.get(
+  "/oauth2/callback/kakao",
+  passport.authenticate("kakao", {
+    failureRedirect: "/oauth2/login/kakao",
+    failureMessage: true,
+  }),
+  (req, res) => res.redirect("/")
+);

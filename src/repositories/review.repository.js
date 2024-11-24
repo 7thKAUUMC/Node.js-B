@@ -9,7 +9,7 @@ export const addReview = async (data) => {
         store_id: data.store_id,
         body: data.body,
         score: data.score,
-        region_id: data.region_id, // region_id 추가
+        region_id: data.region_id, 
       },
     });
 

@@ -12,11 +12,11 @@ export const getUser = async (userId) => {
 export const addUser = async (data) => {
   const user = await prisma.user.findFirst({ where: { email: data.email } });
   if (user) {
-    console.error("중복된 이메일:", data.email); // 로그 추가
-    throw new DuplicateUserEmailError("이미 존재하는 이메일입니다.", data); // 사용자 정의 오류 발생
+    console.error("중복된 이메일:", data.email);
+    throw new DuplicateUserEmailError("이미 존재하는 이메일입니다.", data);
   }
 
-  const createdUser = await prisma.user.create({
+  return await prisma.user.create({
     data: {
       email: data.email,
       name: data.name,
@@ -27,8 +27,6 @@ export const addUser = async (data) => {
       phonenumber: data.phonenumber,
     }
   });
-
-  return createdUser.id; // 사용자 ID 반환
 };
 
 // 사용자 선호 카테고리 반환

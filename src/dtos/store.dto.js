@@ -32,4 +32,3 @@ export const responseFromMissions = (missions) => {
     created_at: mission.created_at,
   }));
 };
-

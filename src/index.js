@@ -3,7 +3,7 @@ import express from "express";
 import cors from 'cors';
 import { handleUserSignUp } from './controllers/user.controller.js';
 import { handleAddStore, handleListStoreMissions } from './controllers/store.controller.js';
-import { handleAddReview, handleListUserReviews  } from "./controllers/review.controller.js"; 
+import { handleAddReview, handleListUserReviews } from "./controllers/review.controller.js"; 
 import { handleAddUserMission, handleListUserMissions } from './controllers/user_mission.controller.js'; 
 
 dotenv.config();
@@ -11,9 +11,7 @@ dotenv.config();
 const app = express();
 const port = process.env.PORT;
 
-/**
- * 공통 응답을 사용할 수 있는 헬퍼 함수 등록
- */
+// 공통 응답을 사용할 수 있는 헬퍼 함수 등록
 app.use((req, res, next) => {
   res.success = (success) => {
     return res.json({ resultType: "SUCCESS", error: null, success });
@@ -30,18 +28,16 @@ app.use((req, res, next) => {
   next();
 });
 
-
 app.use(cors());                            // cors 방식 허용
 app.use(express.static('public'));          // 정적 파일 접근
-app.use(express.json());                    // request의 본문을 json으로 해석할 수 있도록 함 (JSON 형태의 요청 body를 파싱하기 위함)
+app.use(express.json());                    // request의 본문을 json으로 해석할 수 있도록 함
 app.use(express.urlencoded({ extended: false })); // 단순 객체 문자열 형태로 본문 데이터 해석
 
 app.get("/", (req, res) => {
   res.send("Hello World!");
 });
 
-
-
+// API 엔드포인트
 app.post("/api/users/", handleUserSignUp);
 app.post("/api/stores/", handleAddStore);
 app.post("/api/users/store/reviews/", handleAddReview);
@@ -49,6 +45,20 @@ app.post("/api/users/store/user_missions/", handleAddUserMission);
 app.get("/api/users/:userId/reviews", handleListUserReviews);
 app.get("/api/stores/:storeId/missions", handleListStoreMissions);
 app.get("/api/users/:userId/doing_missions", handleListUserMissions);
+
+// 전역 오류를 처리하기 위한 미들웨어
+app.use((err, req, res, next) => {
+  if (res.headersSent) {
+    return next(err);
+  }
+
+  res.status(err.statusCode || 500).error({
+    errorCode: err.errorCode || "unknown",
+    reason: err.reason || err.message || null,
+    data: err.data || null,
+  });
+});
+
 app.listen(port, () => {
   console.log(`Example app listening on port ${port}`);
 });

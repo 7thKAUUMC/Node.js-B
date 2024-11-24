@@ -1,57 +1,32 @@
 import { StatusCodes } from "http-status-codes";
 import { bodyToUserMission, responseFromUserMission, responseFromUserMissions } from "../dtos/user_mission.dto.js";
-import { createUserMission, listUserMissions } from "../services/user_mission.service.js"; // 서비스 호출
+import { createUserMission, listUserMissions } from "../services/user_mission.service.js";
 
-export const handleAddUserMission = async (req, res) => {
+// 현재 진행 중인 미션 추가 핸들러
+export const handleAddUserMission = async (req, res, next) => {
   console.log("미션 추가 요청이 들어왔습니다!");
-  console.log("body:", req.body); // 요청 본문 확인
+  console.log("body:", req.body);
 
   const missionData = bodyToUserMission(req.body);
 
   try {
     const memberMission = await createUserMission(missionData);
     const response = responseFromUserMission(memberMission);
-    res.status(StatusCodes.CREATED).json({
-      resultType: "SUCCESS",
-      error: null,
-      success: response,
-    });
+    return res.status(StatusCodes.CREATED).success(response);
   } catch (error) {
-    console.error("오류 발생:", error); // 오류 로그 추가
-    res.status(StatusCodes.BAD_REQUEST).json({
-      resultType: "FAIL",
-      error: {
-        errorCode: "UM001", // 오류 코드
-        reason: error.message,
-        data: missionData, // 요청한 미션 데이터 포함
-      },
-      success: null,
-    });
+    next(error); 
   }
 };
 
 // 현재 진행 중인 미션 조회 핸들러
-export const handleListUserMissions = async (req, res) => {
+export const handleListUserMissions = async (req, res, next) => {
   const userId = parseInt(req.params.userId);
   const cursor = typeof req.query.cursor === "string" ? parseInt(req.query.cursor) : 0;
 
   try {
     const missions = await listUserMissions(userId, cursor);
-    res.status(StatusCodes.OK).json({
-      resultType: "SUCCESS",
-      error: null,
-      success: missions,
-    });
+    return res.status(StatusCodes.OK).success(missions);
   } catch (error) {
-    console.error("오류 발생:", error);
-    res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
-      resultType: "FAIL",
-      error: {
-        errorCode: "UM002", // 오류 코드
-        reason: error.message,
-        data: null,
-      },
-      success: null,
-    });
+    next(error); 
   }
 };

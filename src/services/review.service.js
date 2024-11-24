@@ -20,7 +20,7 @@ export const createReview = async (reviewData) => {
   return { review, storeName: store.name }; 
 };
 
-// 유저의 리뷰
+// 유저의 리뷰 조회
 export const listUserReviews = async (userId, cursor) => {
   const reviews = await getAllUserReviews(userId, cursor);
   return responseFromReviews(reviews);

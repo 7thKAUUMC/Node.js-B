@@ -9,8 +9,7 @@ export const createUserMission = async (missionData) => {
   }
 
   // 미션 추가
-  const memberMission = await addUserMission(missionData);
-  return memberMission;
+  return await addUserMission(missionData);
 };
 
 // 현재 진행 중인 미션 목록 조회

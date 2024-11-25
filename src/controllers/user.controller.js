@@ -88,9 +88,31 @@ export const handleUserSignUp = async (req, res, next) => {
   const userData = bodyToUser(req.body);
   
   try {
-    const userResponse = await userSignUp(userData);
+    let userResponse;
+
+    // 기존 사용자가 있는지 확인
+    const existingUser = await prisma.user.findUnique({ where: { email: userData.email } });
+    
+    if (existingUser) {  // 있다면
+      // 기존 사용자 정보 업데이트
+      userResponse = await prisma.user.update({
+        where: { email: userData.email },
+        data: {
+          name: userData.name,
+          gender: userData.gender,
+          birthdate: userData.birthdate,
+          address: userData.address,
+          spec_address: userData.spec_address,
+          phonenumber: userData.phonenumber,
+        }
+      });
+    } else { // 없다면 
+      // 새로운 사용자 생성
+      userResponse = await userSignUp(userData);
+    }
+
     return res.status(StatusCodes.CREATED).success(userResponse);
   } catch (error) {
-    next(error); 
+    next(error);
   }
 };

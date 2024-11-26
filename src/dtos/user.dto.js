@@ -22,12 +22,14 @@ export class UserDTO {
   }
 
 // responseFromUser
-export const responseFromUser = (user) => {
-    if (!user) {
-        return null; 
-    }
-    
-    const userDTO = new UserDTO(user);
-    
-    return userDTO;
+export const responseFromUser = ({ user, preferences }) => {
+  const preferFoods = preferences.map(
+    (preference) => preference.foodCategory.name
+  );
+
+  return {
+    email: user.email,
+    name: user.name,
+    preferCategory: preferFoods,
+  };
 };

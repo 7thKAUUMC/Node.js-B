@@ -3,7 +3,7 @@ import express from "express";
 import cors from 'cors';
 import swaggerAutogen from "swagger-autogen";
 import swaggerUiExpress from "swagger-ui-express";
-import { handleUserSignUp } from './controllers/user.controller.js';
+import { handleUserSignUp,  handleUpdateUser } from './controllers/user.controller.js';
 import { handleAddStore, handleListStoreMissions } from './controllers/store.controller.js';
 import { handleAddReview, handleListUserReviews } from "./controllers/review.controller.js"; 
 import { handleAddUserMission, handleListUserMissions } from './controllers/user_mission.controller.js'; 
@@ -137,6 +137,9 @@ app.post("/api/users/store/user_missions/", handleAddUserMission);
 app.get("/api/users/:userId/reviews", handleListUserReviews);
 app.get("/api/stores/:storeId/missions", handleListStoreMissions);
 app.get("/api/users/:userId/doing_missions", handleListUserMissions);
+app.put("/api/users/:userId/update", handleUpdateUser);
+
+
 
 // 전역 오류 처리 미들웨어
 app.use((err, req, res, next) => {

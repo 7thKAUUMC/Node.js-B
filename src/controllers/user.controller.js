@@ -2,6 +2,7 @@ import { StatusCodes } from "http-status-codes";
 import { bodyToUser, responseFromUser } from "../dtos/user.dto.js";
 import { userSignUp } from "../services/user.service.js";
 import { DuplicateUserEmailError } from "../errors.js"; // 사용자 정의 오류 가져오기
+import { prisma } from "../db.config.js"; 
 
 export const handleUserSignUp = async (req, res, next) => {
  /*
@@ -112,6 +113,29 @@ export const handleUserSignUp = async (req, res, next) => {
     }
 
     return res.status(StatusCodes.CREATED).success(userResponse);
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const handleUpdateUser = async (req, res, next) => {
+  const { userId } = req.params;
+  const { name, gender, birthdate, address, spec_address, phonenumber } = req.body;
+
+  try {
+    const updatedUser = await prisma.user.update({
+      where: { id: Number(userId) },
+      data: {
+        name,
+        gender,
+        birthdate: birthdate ? new Date(birthdate) : undefined,
+        address,
+        spec_address,
+        phonenumber,
+      },
+    });
+
+    return res.status(StatusCodes.OK).success(updatedUser);
   } catch (error) {
     next(error);
   }
